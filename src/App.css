@@ -1,0 +1,15 @@
+/* Tạo khoảng trống phía trên bằng đúng chiều cao của AppBar */
+.cs142-main-topbar-buffer {
+  height: 70px; 
+}
+
+/* Căn lề cho toàn bộ vùng chứa dưới TopBar */
+.cs142-main-grid-container {
+  padding: 16px;
+}
+
+/* Thêm khung và khoảng cách cho nội dung chi tiết */
+.cs142-main-grid-item {
+  padding: 16px;
+  min-height: 80vh;
+}
