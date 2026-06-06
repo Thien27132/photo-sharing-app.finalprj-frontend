@@ -41,8 +41,8 @@ function UserDetail({ setContext }) {
       <Divider sx={{ mb: 2 }} />
 
       <Box sx={{ mb: 2 }}>
-        <Typography variant="subtitle1"><strong>📍 Vị trí:</strong> {user.location}</Typography>
-        <Typography variant="subtitle1"><strong>💼 Nghề nghiệp:</strong> {user.occupation}</Typography>
+        <Typography variant="subtitle1"><strong> Vị trí:</strong> {user.location}</Typography>
+        <Typography variant="subtitle1"><strong> Nghề nghiệp:</strong> {user.occupation}</Typography>
       </Box>
 
       <Typography variant="body1" sx={{ backgroundColor: '#f5f5f5', p: 2, borderRadius: 1 }}>
