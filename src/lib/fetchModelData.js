@@ -3,12 +3,16 @@
  * @param {string} url - URL endpoint (e.g., "/user/list", "/user")
  * @param {string} method - HTTP method (e.g., "GET", "POST") - mặc định là "GET"
  * @param {object|FormData} data - Dữ liệu gửi kèm (dùng cho POST) - mặc định là null
- *   Nếu là FormData: gửi multipart/form-data (dùng cho upload file)
- *   Nếu là object: gửi application/json
+ * Nếu là FormData: gửi multipart/form-data (dùng cho upload file)
+ * Nếu là object: gửi application/json
  * @returns {Promise} - Promise resolve với object chứa data hoặc lỗi
  */
 function fetchModel(url, method = "GET", data = null) {
   return new Promise((resolve, reject) => {
+    // 1. CẤU HÌNH ĐỊA CHỈ BACKEND TẠI ĐÂY
+    const BASE_URL = "https://gn4nvs-8081.csb.app";
+    const fullUrl = BASE_URL + url;
+
     // Cấu hình request options
     const options = {
       method: method,
@@ -30,27 +34,30 @@ function fetchModel(url, method = "GET", data = null) {
       options.headers = { "Content-Type": "application/json" };
     }
 
-    // Gửi request
-    fetch(url, options)
+    // Gửi request TỚI BACKEND (fullUrl) THAY VÌ FRONTEND (url)
+    fetch(fullUrl, options)
       .then((response) => {
         // Kiểm tra nếu response không thành công
         if (!response.ok) {
-          // Đọc thông báo lỗi từ server
-          return response.json().then((errorData) => {
-            reject({
-              status: response.status,
-              statusText: response.statusText,
-              message: errorData.error || errorData.message || "Có lỗi xảy ra",
-            });
-          }).catch(() => {
-            // Nếu response không phải JSON, đọc text
-            return response.text().then((errorText) => {
+          // 2. FIX LỖI STREAM: Chỉ đọc text 1 lần duy nhất
+          return response.text().then((text) => {
+            try {
+              // Thử parse thành JSON xem server có trả về JSON không
+              const errorData = JSON.parse(text);
               reject({
                 status: response.status,
                 statusText: response.statusText,
-                message: errorText || "Có lỗi xảy ra khi gọi API",
+                message:
+                  errorData.error || errorData.message || "Có lỗi xảy ra",
               });
-            });
+            } catch (e) {
+              // Nếu catch chạy, tức là server trả về HTML, dùng text thuần
+              reject({
+                status: response.status,
+                statusText: response.statusText,
+                message: text || "Có lỗi xảy ra khi gọi API",
+              });
+            }
           });
         }
         // Nếu thành công, parse JSON
@@ -58,10 +65,12 @@ function fetchModel(url, method = "GET", data = null) {
       })
       .then((data) => {
         // Trả về đúng cấu trúc { data: ... }
-        resolve({ data: data });
+        if (data) {
+          resolve({ data: data });
+        }
       })
       .catch((error) => {
-        // Xử lý lỗi kết nối mạng
+        // Xử lý lỗi kết nối mạng hoặc server sập
         reject({
           status: 500,
           message: error.message || "Network Error",
